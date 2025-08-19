@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Mobilização - Demo</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --background: #f9fafb;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+            --text: #1f2937;
+            --text-secondary: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        header {
+            background-color: white;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+        }
+        
+        .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .kanban-board {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem 0;
+            overflow-x: auto;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .kanban-column {
+            min-width: 300px;
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .column-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .column-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .column-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .to-do-color { background-color: #fbbf24; }
+        .on-hold-color { background-color: #f59e0b; }
+        .blocked-color { background-color: #ef4444; }
+        .in-progress-color { background-color: #3b82f6; }
+        .review-color { background-color: #8b5cf6; }
+        .complete-color { background-color: #10b981; }
+        
+        .column-count {
+            background-color: var(--background);
+            border-radius: 1rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .column-content {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            padding: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .card-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-tag {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .tag-creative {
+            background-color: #ddd6fe;
+            color: #5b21b6;
+        }
+        
+        .tag-dev {
+            background-color: #bfdbfe;
+            color: #1e40af;
+        }
+        
+        .tag-blocked {
+            background-color: #fecaca;
+            color: #b91c1c;
+        }
+        
+        .tag-on-hold {
+            background-color: #fed7aa;
+            color: #9a3412;
+        }
+        
+        .tag-review {
+            background-color: #e9d5ff;
+            color: #6b21a8;
+        }
+        
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .card-date {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .card-assignee {
+            display: flex;
+            align-items: center;
+        }
+        
+        .add-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px dashed var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .add-card:hover {
+            background-color: var(--background);
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border);
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .login-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .login-footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal-backdrop.show {
+            display: flex;
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        /* Checklist */
+        .checklist {
+            margin: 1.5rem 0;
+        }
+        
+        .checklist-header {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .checklist-progress {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border);
+            border-radius: 3px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .checklist-progress-bar {
+            height: 100%;
+            background-color: var(--success);
+            border-radius: 3px;
+            width: 60%;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            margin-top: 0.25rem;
+        }
+        
+        .checklist-item-content {
+            flex-grow: 1;
+        }
+        
+        .checklist-item-required {
+            color: var(--danger);
+            font-weight: 500;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Card details */
+        .card-details {
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-details-row {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .card-details-label {
+            width: 150px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .card-details-value {
+            flex-grow: 1;
+        }
+        
+        /* History */
+        .history-item {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .history-content {
+            flex-grow: 1;
+        }
+        
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+        
+        .history-user {
+            font-weight: 500;
+        }
+        
+        .history-date {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .history-action {
+            margin-bottom: 0.25rem;
+        }
+        
+        .history-details {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .kanban-column {
+                min-width: 280px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen (hidden by default) -->
+        <div id="login-screen">
+            <div class="login-container">
+                <div class="login-header">
+                    <h1>Sistema de Mobilização</h1>
+                    <p>Faça login para acessar o sistema</p>
+                </div>
+                <form class="login-form" id="login-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="seu.email@empresa.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+                <div class="login-footer">
+                    <p>Esqueceu sua senha? <a href="#">Recuperar senha</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App (shown after login) -->
+        <div id="main-app" style="display: none;">
+            <header>
+                <div class="container">
+                    <div class="header-content">
+                        <div class="logo">
+                            <span>Sistema de Mobilização</span>
+                        </div>
+                        <nav class="nav-links">
+                            <a href="#" class="active">Kanban</a>
+                            <a href="#">Dashboard</a>
+                            <a href="#">Relatórios</a>
+                            <a href="#">Configurações</a>
+                        </nav>
+                        <div class="user-actions">
+                            <div class="notification-icon">
+                                <span>🔔</span>
+                                <span class="notification-badge">3</span>
+                            </div>
+                            <div class="user-profile">
+                                <div class="avatar">A</div>
+                                <span>Admin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="container">
+                <div class="kanban-board">
+                    <!-- To Do Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-header-left">
+                                <div class="column-color to-do-color"></div>
+                                <span>To do</span>
+                            </div>
+                            <span class="column-count">2</span>
+                        </div>
+                        <div class="column-content">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Develop department introduction/overview copy</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-creative">Creative</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">Feb 25</div>
+                                    <div class="card-assignee">JD</div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Documentation Review</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-creative">Creative</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">Today</div>
+                                    <div class="card-assignee">MR</div>
+                                </div>
+                            </div>
+                            <div class="add-card">
+                                + Adicionar card
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- On Hold Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-header-left">
+                                <div class="column-color on-hold-color"></div>
+                                <span>On Hold</span>
+                            </div>
+                            <span class="column-count">2</span>
+                        </div>
+                        <div class="column-content">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Beauty Post Interview / Shoot</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-creative">Creative</span>
+                                        <span class="card-tag tag-on-hold">On Hold</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">Friday</div>
+                                    <div class="card-assignee">JD</div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">LABS POST: Recipe Shelf (Retail)</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-on-hold">On Hold</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">Feb 28 - Mar 18</div>
+                                    <div class="card-assignee">JD</div>
+                                </div>
+                            </div>
+                            <div class="add-card">
+                                + Adicionar card
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blocked Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-header-left">
+                                <div class="column-color blocked-color"></div>
+                                <span>Blocked</span>
+                            </div>
+                            <span class="column-count">2</span>
+                        </div>
+                        <div class="column-content">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Belt Inclusion Toggles for Auto-Assignment</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-blocked">Blocked</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">Feb 28 - Mar 4</div>
+                                    <div class="card-assignee">JF</div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Claim Auto-Assignment Toggling</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-blocked">Blocked</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">Feb 28 - Mar 4</div>
+                                    <div class="card-assignee">JF</div>
+                                </div>
+                            </div>
+                            <div class="add-card">
+                                + Adicionar card
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-header-left">
+                                <div class="column-color in-progress-color"></div>
+                                <span>In progress</span>
+                            </div>
+                            <span class="column-count">2</span>
+                        </div>
+                        <div class="column-content">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Handoff XD export to design team</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-creative">Creative</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">Feb 25</div>
+                                    <div class="card-assignee">JD</div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Data Integration (Backend)</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-dev">Dev</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">In Progress</div>
+                                    <div class="card-assignee">MR</div>
+                                </div>
+                            </div>
+                            <div class="add-card">
+                                + Adicionar card
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-header-left">
+                                <div class="column-color review-color"></div>
+                                <span>Review</span>
+                            </div>
+                            <span class="column-count">1</span>
+                        </div>
+                        <div class="column-content">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Create Pocket Client (Listener)</div>
+                                    <div class="card-tags">
+                                        <span class="card-tag tag-dev">Dev</span>
+                                        <span class="card-tag tag-review">Review</span>
+                                    </div>
+                                </div>
+                                <div class="card-meta">
+                                    <div class="card-date">Feb 24 - Today</div>
+                                    <div class="card-assignee">MP</div>
+                                </div>
+                            </div>
+                            <div class="add-card">
+                                + Adicionar card
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Complete Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-header-left">
+                                <div class="column-color complete-color"></div>
+                                <span>Complete</span>
+                            </div>
+                            <span class="column-count">0</span>
+                        </div>
+                        <div class="column-content">
+                            <div class="add-card">
+                                + Adicionar card
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Card Details Modal -->
+        <div class="modal-backdrop" id="card-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="modal-title">Belt Inclusion Toggles for Auto-Assignment</h2>
+                    <button class="modal-close" id="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="details">Detalhes</div>
+                        <div class="tab" data-tab="checklist">Checklist</div>
+                        <div class="tab" data-tab="history">Histórico</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="details-tab">
+                        <div class="card-details">
+                            <div class="card-details-row">
+                                <div class="card-details-label">Colaborador:</div>
+                                <div class="card-details-value">João Silva</div>
+                            </div>
+                            <div class="card-details-row">
+                                <div class="card-details-label">CPF:</div>
+                                <div class="card-details-value">123.456.789-00</div>
+                            </div>
+                            <div class="card-details-row">
+                                <div class="card-details-label">Cargo:</div>
+                                <div class="card-details-value">Desenvolvedor Full Stack</div>
+                            </div>
+                            <div class="card-details-row">
+                                <div class="card-details-label">Salário:</div>
+                                <div class="card-details-value">R$ 8.500,00</div>
+                            </div>
+                            <div class="card-details-row">
+                                <div class="card-details-label">Centro de Custo:</div>
+                                <div class="card-details-value">TI - Desenvolvimento</div>
+                            </div>
+                            <div class="card-details-row">
+                                <div class="card-details-label">Data de Admissão:</div>
+                                <div class="card-details-value">15/03/2023</div>
+                            </div>
+                            <div class="card-details-row">
+                                <div class="card-details-label">Etapa Atual:</div>
+                                <div class="card-details-value">Blocked</div>
+                            </div>
+                            <div class="card-details-row">
+                                <div class="card-details-label">Responsável:</div>
+                                <div class="card-details-value">Maria Santos (RH)</div>
+                            </div>
+                            <div class="card-details-row">
+                                <div class="card-details-label">Observações:</div>
+                                <div class="card-details-value">Aguardando documentação complementar do candidato. Processo bloqueado até recebimento dos documentos pendentes.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="checklist-tab">
+                        <div class="checklist">
+                            <div class="checklist-header">
+                                <span>Checklist da Etapa</span>
+                                <span>3/5 itens</span>
+                            </div>
+                            <div class="checklist-progress">
+                                <div class="checklist-progress-bar" style="width: 60%"></div>
+                            </div>
+                            <div class="checklist-items">
+                                <div class="checklist-item">
+                                    <input type="checkbox" checked>
+                                    <div class="checklist-item-content">
+                                        <div>Verificar documentação básica</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" checked>
+                                    <div class="checklist-item-content">
+                                        <div>Validar dados cadastrais</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" checked>
+                                    <div class="checklist-item-content">
+                                        <div>Solicitar documentos complementares</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox">
+                                    <div class="checklist-item-content">
+                                        <div>Receber documentos complementares <span class="checklist-item-required">*</span></div>
+                                    </div>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox">
+                                    <div class="checklist-item-content">
+                                        <div>Aprovar documentação completa <span class="checklist-item-required">*</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="history-tab">
+                        <div class="history">
+                            <div class="history-item">
+                                <div class="history-avatar">M</div>
+                                <div class="history-content">
+                                    <div class="history-meta">
+                                        <div class="history-user">Maria Santos</div>
+                                        <div class="history-date">Hoje, 14:32</div>
+                                    </div>
+                                    <div class="history-action">Moveu o card para <strong>Blocked</strong></div>
+                                    <div class="history-details">Motivo: Aguardando documentação complementar do candidato</div>
+                                </div>
+                            </div>
+                            <div class="history-item">
+                                <div class="history-avatar">M</div>
+                                <div class="history-content">
+                                    <div class="history-meta">
+                                        <div class="history-user">Maria Santos</div>
+                                        <div class="history-date">Ontem, 16:45</div>
+                                    </div>
+                                    <div class="history-action">Atualizou o checklist</div>
+                                    <div class="history-details">Marcou "Solicitar documentos complementares" como concluído</div>
+                                </div>
+                            </div>
+                            <div class="history-item">
+                                <div class="history-avatar">J</div>
+                                <div class="history-content">
+                                    <div class="history-meta">
+                                        <div class="history-user">João Oliveira</div>
+                                        <div class="history-date">28/02/2023, 10:15</div>
+                                    </div>
+                                    <div class="history-action">Moveu o card para <strong>In Progress</strong></div>
+                                    <div class="history-details">Iniciando processo de verificação de documentos</div>
+                                </div>
+                            </div>
+                            <div class="history-item">
+                                <div class="history-avatar">A</div>
+                                <div class="history-content">
+                                    <div class="history-meta">
+                                        <div class="history-user">Admin</div>
+                                        <div class="history-date">27/02/2023, 09:30</div>
+                                    </div>
+                                    <div class="history-action">Criou o card</div>
+                                    <div class="history-details">Card adicionado à etapa <strong>To Do</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn">Cancelar</button>
+                    <button class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulating login functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const loginScreen = document.getElementById('login-screen');
+            const mainApp = document.getElementById('main-app');
+            const cardModal = document.getElementById('card-modal');
+            const closeModal = document.getElementById('close-modal');
+            const cards = document.querySelectorAll('.card');
+            const tabs = document.querySelectorAll('.tab');
+            
+            // Login form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                // Simple validation for demo
+                if (email && password) {
+                    loginScreen.style.display = 'none';
+                    mainApp.style.display = 'block';
+                }
+            });
+            
+            // Card click to open modal
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    cardModal.classList.add('show');
+                });
+            });
+            
+            // Close modal
+            closeModal.addEventListener('click', function() {
+                cardModal.classList.remove('show');
+            });
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                });
+            });
+            
+            // Auto-login for demo purposes
+            // Comment this out to show login screen
+            loginScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
+
